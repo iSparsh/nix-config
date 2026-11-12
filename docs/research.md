@@ -1,4 +1,6 @@
-# NixOS repository architecture evidence
+# Initial NixOS repository architecture evidence
+
+Historical research: the owner subsequently selected the dendritic pattern. The current design is documented in [architecture.md](architecture.md); the initial recommendation below is retained as research context.
 
 Verified 2026-11-12 against GitHub REST repository metadata, default-branch recursive Git trees, README files and source files. Star counts are popularity signals, not compatibility or quality scores. No external writes performed.
 

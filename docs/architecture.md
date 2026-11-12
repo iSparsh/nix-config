@@ -1,60 +1,101 @@
-# Proposed architecture
+# Dendritic architecture
 
-Status: proposed, pending owner review.
+The repository uses flake-parts with automatic discovery of `*.mod.nix` files. Each discovered file is a top-level flake-parts module organized around a feature. It contributes lower-level NixOS configuration through `flake.modules.nixos.<profile>` or defines other flake outputs such as formatting and checks.
 
-## Recommendation
-
-Use one flake with named NixOS host outputs, ordinary NixOS modules, Hjem, and import-tree for automatic discovery of shared NixOS modules. Begin without Den or flake-parts. Those are useful frameworks, but neither is required for the initial two-host configuration.
-
-Shared modules are available to both hosts. Optional features declare enable options and guard their settings with `lib.mkIf`. Hosts select behavior through options rather than importing shared feature files. Availability and activation are separate: discovering gaming configuration does not install Steam on the server.
-
-## Planned layout
+## Layout
 
 ```text
-flake.nix                  # dependencies, discovery, named host outputs
-flake.lock                 # pinned dependency revisions
-AGENTS.md                  # maintenance conventions
+flake.nix                    # inputs and automatic *.mod.nix discovery
+flake.lock                   # pinned revisions
+modules/
+  infrastructure/
+    hosts.mod.nix            # host schema and central composition
+    tooling.mod.nix          # formatter and integration checks
+  profiles/
+    base.mod.nix             # Hjem integration and shared Nix CLI settings
 hosts/
-  home-server/
-    configuration.nix      # identity, feature choices, installation settings
-    hardware-configuration.nix
-  workstation/             # added when migration begins
-modules/                   # auto-discovered NixOS modules only
-  base.nix                 # deliberately shared system defaults
-  features/
-    gaming.nix
-    backups.nix
-  services/                # added for chosen server services
-  home/                    # NixOS modules configuring hjem.users
-files/                     # native dotfiles and local supporting data
-docs/
-  architecture.md
-  research.md
-.github/workflows/         # validation once actual configs exist
+  README.md                  # actual host files added after installation
+AGENTS.md                    # repository-specific maintenance rules
+.github/workflows/check.yml  # formatting and flake checks
 ```
 
-Directory names are conventions, not a second configuration language. Keep host hardware outside shared module discovery. Import-tree is wired once in host composition; upstream Hjem integration is also registered centrally. Local hardware/supporting imports remain permitted.
+Discovery scans the repository, so a feature file can move between directories without an import-list edit. Only `.mod.nix` files participate. Supporting expressions, generated hardware configuration, and native dotfiles are not top-level modules and must use other names.
 
-For illustration, the server could set `my.features.backups.enable = true`, while the workstation sets `my.features.gaming.enable = true`. Neither feature exists yet; exact choices follow the owner's requirements. Shared base settings should contain only behavior deliberately wanted on every host.
+## Features and profiles
 
-Hjem manages native home files. Use standard NixOS package and service options where appropriate. Hjem's per-program companion ecosystem can be considered later rather than added by default.
+Multiple files can contribute to the same deferred NixOS module. For example, a future `modules/steam.mod.nix` could contain:
 
-## Workflow
+```nix
+{
+  flake.modules.nixos.gaming = {
+    programs.steam.enable = true;
+    # Add the required unfree-package policy when implementing gaming.
+  };
+}
+```
 
-1. Start from the installed server's generated configuration and hardware facts. Match its installed release initially and preserve its initial stateVersion.
-2. Add the smallest useful base, Hjem integration, and the services the owner requests.
-3. Pin dependencies and add formatting plus checks of actual host configurations. Validate disabled optional features as well as enabled ones.
-4. Build before activation. Document commands for the server and later workstation separately.
-5. Add the workstation with its own hardware configuration, reusing the existing shared modules and home settings.
+Another file can contribute related gaming settings to `flake.modules.nixos.gaming`. The module system merges those contributions. This is how features remain together without creating one import list per host. A feature may also contribute packages, checks, or other module classes when needed.
 
-The shared lock file gives both hosts the same dependency revisions at a given commit. Activation is independent: committing or pulling changes does not update either running system automatically. Different stable/unstable inputs can be added later if workstation requirements justify them.
+Discovery makes profiles available; it does not install their contents on every host. `base` is always included. Other profiles are selected by name in each host's declaration. Profile names are open-ended, so adding a profile needs no registry edit. Unknown profile names produce an evaluation error.
 
-## Alternatives considered
+This differs from RGBCube's ncc branch: both use flake-parts and `.mod.nix` discovery, but this repository centrally composes profiles to preserve the rule against manual shared-module imports. It does not replicate ncc's custom library, service framework, or Darwin integration.
 
-- Den: a community-used framework with substantive agent documentation and Hjem support, but introduces aspects, entities, and policies beyond ordinary NixOS options. Reconsider if cross-host composition becomes difficult.
-- Full dendritic layout: organizes multiple module classes by feature and often uses flake-parts. Valuable if the repository grows to manage packages, development environments, and more platforms. Automatic discovery alone does not guarantee compliance with the prohibition on manual shared-module imports.
-- Snowfall Lib: established adoption, but its current upstream maintenance notice makes it a poor default for a new repository.
+## Adding a host
 
-## Information needed for the server
+An illustrative `hosts/home-server/home-server.mod.nix`:
 
-Collect the installed release, generated configuration files, username and hostname, storage layout and encryption choices, network connection, SSH access requirements, lid/suspend preferences, desired services, and backup destination. Add details incrementally as the owner supplies them; do not assume that a fresh install should be repartitioned.
+```nix
+{
+  fleet.hosts.home-server = {
+    system = "x86_64-linux";
+    profiles = [ ]; # Select additional profiles after implementing them.
+
+    module = {
+      imports = [ ./hardware-configuration.nix ];
+
+      # Copy installation-specific settings from the installed machine,
+      # including its original system.stateVersion and bootloader settings.
+    };
+  };
+}
+```
+
+This is a structural example, not an installable configuration. The repository intentionally has no real host outputs until actual installation facts are supplied. Preserve the installer's generated `configuration.nix` and `hardware-configuration.nix`.
+
+The central constructor adds `base`, the host-local module, hostname, and selected profiles. Host files do not manually import shared modules by path or attribute reference. Host-local hardware/supporting imports are allowed. Hjem's external module is registered once in `base`; home configuration can be contributed to the same profiles through `hjem.users` without Home Manager.
+
+Nixpkgs initially tracks stable `nixos-26.05`; confirm compatibility with the installed server before registering it. Each machine retains its own initial `system.stateVersion`, independent of the input revision. Additional stable/unstable inputs can be introduced deliberately if workstation requirements justify them.
+
+## Validation and deployment
+
+```sh
+nix fmt
+nix fmt -- --ci
+nix flake check
+```
+
+The formatter is nixfmt, using its treefmt wrapper. The integration check evaluates the base profile's Nix settings and Hjem registration without constructing a deployable fake machine. The flake exports tooling for x86_64-linux and aarch64-linux; ordinary checks build for the current platform.
+
+Once a real host exists, evaluate and build it before activation:
+
+```sh
+nix eval .#nixosConfigurations.home-server.config.system.build.toplevel.drvPath
+nix build .#nixosConfigurations.home-server.config.system.build.toplevel
+```
+
+On the intended NixOS host, apply its configuration with:
+
+```sh
+sudo nixos-rebuild switch --flake .#home-server
+```
+
+Stage newly created files explicitly before Git-backed flake evaluation. Do not activate systems as a validation shortcut. CI runs formatting and flake checks; add real host build checks when those outputs exist. Package builds, runtime testing, application state, secrets, and backups remain separate concerns.
+
+Both machines share dependency revisions through `flake.lock`, but activation is independent. A commit or pull does not change either running machine automatically.
+
+## Sources
+
+- [Dendritic pattern](https://github.com/mightyiam/dendritic): feature-oriented top-level modules and merging lower-level module values.
+- [flake-parts modules](https://flake.parts/options/flake-parts-modules.html): typed `flake.modules` registry.
+- [Hjem](https://hjem.feel-co.org/): user-file management and NixOS integration.
+- [Initial research](research.md): historical alternatives and adoption evidence, collected before the owner selected dendritic.
