@@ -23,6 +23,9 @@ Discovery scans the repository, so a feature file can move between directories w
 
 ## Features and profiles
 
+See [the approved shared setup](shared-setup.md) for the owner's application,
+appearance, and service requirements and current implementation status.
+
 Multiple files can contribute to the same deferred NixOS module. For example, a future `modules/steam.mod.nix` could contain:
 
 ```nix

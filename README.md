@@ -10,7 +10,8 @@ nix flake check
 ```
 
 - [Architecture and adding a host](docs/architecture.md)
+- [Approved shared setup and implementation status](docs/shared-setup.md)
 - [Initial upstream research](docs/research.md)
 - [Agent instructions](AGENTS.md)
 
-The flake provides shared Hjem integration, formatting, and validation. No installed hosts are registered yet. Next, add the server's actual installation facts and desired services. Preserve the NixOS installer's generated `configuration.nix` and `hardware-configuration.nix` for that step.
+The flake provides shared Hjem and nix-ld integration, a Codex/Claude Code profile, formatting, and validation. No installed hosts are registered yet. Next, continue the approved shared setup and add the server's actual installation facts. Preserve the NixOS installer's generated `configuration.nix` and `hardware-configuration.nix` for that step.
