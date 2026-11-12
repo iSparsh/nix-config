@@ -77,11 +77,9 @@ versions should use matching browsers in a project development shell.
 `nix develop .#playwright` provides the repository's matching Node/driver/browser environment. The shared
 Playwright version is recorded at `/etc/nix-config/playwright-version`.
 
-## Remaining machine-specific work
+## Machine-specific setup
 
-See [installation and first service setup](install.md). The server's hardware/boot settings are registered; follow its
-[deployment guide](../hosts/asus-nixos/README.md). Workstation hardware is supplied
-when that machine migrates. Owner authentication,
-Jellyfin libraries, photo imports, external storage mounts, hardware acceleration,
-and a backup destination are performed after that. Nothing has been activated on
-the laptop by changing this repository.
+Follow the [asus-nixos guide](../hosts/asus-nixos/README.md) for deployment, accounts,
+media services, and remaining storage/backup setup. Supply the workstation's own
+hardware configuration when it migrates. Use the [maintenance guide](maintenance.md)
+for validation and dependency updates.

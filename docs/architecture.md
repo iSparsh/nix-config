@@ -1,108 +1,59 @@
-# Dendritic architecture
+# Architecture
 
-The repository uses flake-parts with automatic discovery of `*.mod.nix` files. Each discovered file is a top-level flake-parts module organized around a feature. It contributes lower-level NixOS configuration through `flake.modules.nixos.<profile>` or defines other flake outputs such as formatting and checks.
+Every `*.mod.nix` file is an automatically discovered flake-parts module organized
+around a feature. It can contribute NixOS settings, packages, checks, or development
+shells. Other `.nix` files are supporting expressions and are not auto-discovered.
 
-## Layout
+## Composition
 
-```text
-flake.nix                    # inputs and automatic *.mod.nix discovery
-flake.lock                   # pinned revisions
-modules/
-  infrastructure/
-    hosts.mod.nix            # host schema and central composition
-    tooling.mod.nix          # formatter and integration checks
-  profiles/
-    base.mod.nix             # Hjem integration and shared Nix CLI settings
-hosts/
-  README.md                  # actual host files added after installation
-AGENTS.md                    # repository-specific maintenance rules
-.github/workflows/check.yml  # formatting and flake checks
-```
+Features contribute to `flake.modules.nixos.<profile>`. Multiple files contributing
+to one profile merge through the module system. `modules/features/development.mod.nix`,
+for example, provides both the development profile and the Playwright dev shell.
 
-Discovery scans the repository, so a feature file can move between directories without an import-list edit. Only `.mod.nix` files participate. Supporting expressions, generated hardware configuration, and native dotfiles are not top-level modules and must use other names.
+`modules/infrastructure/hosts.mod.nix` constructs named systems from `fleet.hosts`:
 
-## Features and profiles
+- `base` is always included and selects Limine, Hjem, and shared system settings.
+- `fleet.sharedProfiles` supplies the default optional profiles.
+- Each host declares its architecture, primary username, local settings, and any
+  profile overrides. `asus-nixos` adds `server` to the shared profiles.
+- The central constructor composes shared modules. Hosts do not maintain shared
+  file imports or named-module import lists.
 
-See [the approved shared setup](shared-setup.md) for the owner's application,
-appearance, and service requirements and current implementation status.
+Only selected profiles activate. Upstream integrations are registered once in the
+profile that owns them. Local imports, such as generated hardware files, are allowed.
 
-Multiple files can contribute to the same deferred NixOS module. For example, a future `modules/steam.mod.nix` could contain:
+## Files
 
-```nix
-{
-  flake.modules.nixos.gaming = {
-    programs.steam.enable = true;
-    # Add the required unfree-package policy when implementing gaming.
-  };
-}
-```
+| Location | Purpose |
+|---|---|
+| `flake.nix`, `flake.lock` | Upstream inputs, pinned revisions, discovery |
+| `modules/infrastructure/` | Host construction, package sets, tooling |
+| `modules/profiles/` | Shared base settings |
+| `modules/features/` | Software, services for user sessions, appearance |
+| `modules/services/` | Jellyfin, Immich, and server power behavior |
+| `modules/packages/`, `packages.json` | Custom packages and pinned release assets |
+| `hosts/asus-nixos/` | Real host settings, hardware, deployment guide |
+| `themes/victus-graphite/` | Canonical palette and application templates |
+| `scripts/`, `tests/` | Updates, appearance merging, validation fixtures |
 
-Another file can contribute related gaming settings to `flake.modules.nixos.gaming`. The module system merges those contributions. This is how features remain together without creating one import list per host. A feature may also contribute packages, checks, or other module classes when needed.
+The OS uses stable NixOS; a separately pinned unstable package set supplies current
+applications. Official upstream flakes retain required dependency pins. Hjem
+manages home files; writable application settings receive targeted merges.
 
-Discovery makes profiles available; it does not install their contents on every host. `base` is always included. Other profiles are selected by name in each host's declaration. `fleet.sharedProfiles` supplies their default list; a host can override it to select a smaller setup. Profile names are open-ended, so adding a profile needs no registry edit. Unknown profile names produce an evaluation error.
+## Adding a machine
 
-This differs from RGBCube's ncc branch: both use flake-parts and `.mod.nix` discovery, but this repository centrally composes profiles to preserve the rule against manual shared-module imports. It does not replicate ncc's custom library, service framework, or Darwin integration.
+1. Obtain its generated configuration and hardware files.
+2. Add `hosts/<hostname>/<hostname>.mod.nix` declaring `fleet.hosts.<hostname>`.
+   Set `system`, `primaryUser`, and `module`; override `profiles` only if necessary.
+3. Import the local hardware file inside `module`. Preserve filesystem identifiers,
+   EFI settings, users, and initial `system.stateVersion`. Shared Limine replaces
+   the installer's bootloader choice.
+4. Follow [validation and updates](maintenance.md), build the actual host, then
+   deploy on the intended machine.
 
-## Adding a host
+The flake emits `nixosConfigurations.<hostname>`. Committing or pulling changes
+never activates them on a running host.
 
-An illustrative `hosts/home-server/home-server.mod.nix`:
-
-```nix
-{
-  fleet.hosts.home-server = {
-    system = "x86_64-linux";
-    primaryUser = "your-installed-username";
-    # Shared profiles are selected by default. Add "server" for the laptop.
-    profiles = [ "shell" "desktop" "apps" "development" "ai-tools" "appearance" "connectivity" "artcraft" "server" ];
-
-    module = {
-      imports = [ ./hardware-configuration.nix ];
-
-      # Copy installation-specific settings from the installed machine,
-      # including its original system.stateVersion and EFI settings.
-      # The shared base selects Limine instead of the installer bootloader.
-    };
-  };
-}
-```
-
-This is a structural example. The real `asus-nixos` output uses the owner-supplied installation facts. Preserve the installer's generated `configuration.nix` and `hardware-configuration.nix`.
-
-The central constructor adds `base`, the host-local module, hostname, and selected profiles. Host files do not manually import shared modules by path or attribute reference. Host-local hardware/supporting imports are allowed. Hjem's external module is registered once in `base`; home configuration can be contributed to the same profiles through `hjem.users` without Home Manager.
-
-Nixpkgs initially tracks stable `nixos-26.05`; confirm compatibility with the installed server before registering it. Each machine retains its own initial `system.stateVersion`, independent of the input revision. A separately pinned unstable package set supplies current applications. Official upstream flakes retain their dependency revisions when required for compatibility.
-
-## Validation and deployment
-
-```sh
-nix fmt
-nix fmt -- --ci
-nix flake check
-bash scripts/check-profiles.sh
-```
-
-The formatter is nixfmt, using its treefmt wrapper. The integration check evaluates the base profile's Nix settings and Hjem registration without constructing a deployable fake machine. The flake exports tooling for x86_64-linux and aarch64-linux; ordinary checks build for the current platform.
-
-Once a real host exists, evaluate and build it before activation:
-
-```sh
-nix eval .#nixosConfigurations.home-server.config.system.build.toplevel.drvPath
-nix build .#nixosConfigurations.home-server.config.system.build.toplevel
-```
-
-On the intended NixOS host, apply its configuration with:
-
-```sh
-sudo nixos-rebuild switch --flake .#home-server
-```
-
-Stage newly created files explicitly before Git-backed flake evaluation. Do not activate systems as a validation shortcut. CI runs formatting, flake checks, and complete synthetic server/workstation evaluation; add real host build checks when those outputs exist. Package builds, runtime testing, application state, secrets, and backups remain separate concerns.
-
-Both machines share dependency revisions through `flake.lock`, but activation is independent. A commit or pull does not change either running machine automatically.
-
-## Sources
-
-- [Dendritic pattern](https://github.com/mightyiam/dendritic): feature-oriented top-level modules and merging lower-level module values.
-- [flake-parts modules](https://flake.parts/options/flake-parts-modules.html): typed `flake.modules` registry.
-- [Hjem](https://hjem.feel-co.org/): user-file management and NixOS integration.
-- [Initial research](research.md): historical alternatives and adoption evidence, collected before the owner selected dendritic.
+References: [dendritic pattern](https://github.com/mightyiam/dendritic),
+[flake-parts modules](https://flake.parts/options/flake-parts-modules.html),
+[Hjem](https://hjem.feel-co.org/).

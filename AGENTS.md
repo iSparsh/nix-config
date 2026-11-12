@@ -9,4 +9,4 @@
 - Never enumerate or broadly search `/nix/store` or equivalent locations. Prefer `nix flake archive --json`, then inspect specific returned input paths in separate commands.
 - Use nix3 commands (`nix build/eval/develop/shell/run/flake`), not legacy Nix commands or channels. Use `nixos-rebuild` for system activation. Keep dependencies pinned; update inputs intentionally.
 - Separate unrelated configuration sections with blank lines. Run `nix fmt`, `nix flake check`, and build affected real host configurations when feasible. Report which checks ran; stage new files explicitly before evaluating a Git-backed flake.
-- Preserve actual hardware settings and each host's initial `system.stateVersion`. Keep credentials out of tracked plaintext. Do not invent installation facts or activate a host merely to validate changes.
+- Preserve actual hardware settings and each host's initial `system.stateVersion`. This repository is public: keep credentials, private keys, and account/session data out of tracked files. Do not invent installation facts or activate a host merely to validate changes.
