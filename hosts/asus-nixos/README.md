@@ -30,11 +30,29 @@ first deployment, back up `/etc/nixos` once to an unused backup path:
 sudo cp -a /etc/nixos /etc/nixos.before-nix-config
 ```
 
-Then build and install for the next boot:
+## Memory bootstrap
+
+This laptop has about 2.7 GiB usable RAM. Before the first large build, create
+disk-backed swap on its Btrfs root filesystem. Check that at least 8 GiB is free:
 
 ```sh
-sudo nixos-rebuild build --flake .#asus-nixos
-sudo nixos-rebuild boot --install-bootloader --flake .#asus-nixos
+df -h /
+sudo btrfs filesystem mkswapfile --size 8G /swapfile
+sudo swapon --priority 10 /swapfile
+swapon --show
+```
+
+Create the file only once; if `/swapfile` already exists, inspect it rather than
+recreating it. The repository makes this 8 GiB swapfile persistent, adds zram,
+and limits Nix to one concurrent build with one requested core per build. Swap
+helps with memory pressure but does not guarantee large source builds will fit.
+
+Then build and install for the next boot. The explicit limits apply before the
+repository settings have been activated:
+
+```sh
+sudo nixos-rebuild build --flake .#asus-nixos --max-jobs 1 --cores 1
+sudo nixos-rebuild boot --install-bootloader --flake .#asus-nixos --max-jobs 1 --cores 1
 sudo reboot
 ```
 

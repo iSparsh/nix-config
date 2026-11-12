@@ -13,6 +13,27 @@
         boot.loader.efi.canTouchEfiVariables = true;
         boot.kernelPackages = pkgs.linuxPackages_latest;
 
+        # This laptop has about 2.7 GiB usable RAM. Prefer compressed swap,
+        # with disk-backed headroom for evaluation and compiler/linker peaks.
+        zramSwap = {
+          enable = true;
+          memoryPercent = 50;
+          priority = 100;
+        };
+
+        swapDevices = [
+          {
+            device = "/swapfile";
+            size = 8192;
+            priority = 10;
+          }
+        ];
+
+        nix.settings = {
+          max-jobs = 1;
+          cores = 1;
+        };
+
         time.timeZone = "America/Chicago";
 
         i18n.defaultLocale = "en_US.UTF-8";
