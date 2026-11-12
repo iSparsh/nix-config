@@ -1,64 +1,86 @@
 # Shared setup
 
-The owner approved this setup for both the home server and future workstation.
-This is an implementation checklist; entries marked planned are not configured yet.
+The shared profiles below are implemented and selected by default for each host.
+A server additionally selects `server`. No real host is registered until its
+installer-generated files are supplied. Package revisions live in `flake.lock`;
+custom binary/font release URLs and hashes live in `packages.json`.
 
-## Implemented
-
-- `base`: Hjem integration, Nix CLI features, and nix-ld compatibility. NixOS's
-  default C/C++, TLS, compression, and system libraries are extended with libffi,
-  ICU, SQLite, ncurses, readline, and GLib. This does not set global
-  `LD_LIBRARY_PATH` or guarantee that every downloaded Linux binary will work.
-- `ai-tools`: Nixpkgs Codex and Claude Code, explicitly chosen by the owner.
-  Their versions follow the pinned Nixpkgs revision. They are not installed or
-  updated through Bun, npm, or upstream installation scripts.
-- Unfree packages are allowed by name through `local.allowedUnfreePackages`.
-  Selected profiles extend the list; it is not a blanket allowance.
-
-No real host is registered yet, so these modules have not been activated on a
-machine. The `ai-tools` profile currently contains only Codex and Claude Code.
-
-## Planned profiles
-
-| Profile | Scope |
+| Profile | Implemented contents |
 |---|---|
-| `shell` | Recreate the current zsh behavior declaratively: history, completion, keybindings, autosuggestions, highlighting, fzf, Starship, zoxide, and portable aliases. Adapt Arch-only paths and aliases; do not copy `.zshrc` wholesale. |
-| `desktop` | Hyprland, upstream Dux Shell/Search/Files/Greeter, portals, audio, clipboard, and GeoClue with location-provider and session-agent integration. |
+| `base` | Hjem, modern Nix CLI settings, nix-ld with the NixOS defaults plus libffi, ICU, SQLite, ncurses, readline, and GLib. Named unfree-package allowances. |
+| `shell` | zsh completion/history/keybindings, autosuggestions, highlighting, fzf, Starship, zoxide, portable aliases, and OpenConnect for the existing VPN alias. Recreated declaratively without copying `.zshrc`. |
+| `desktop` | Hyprland/UWSM, official upstream Dux Shell/Search/Files/Greeter, portals, PipeWire audio, clipboard tools, NetworkManager, GeoClue, and session integration. |
 | `apps` | Helium, Chromium, gh, Zed, Neovim, foot, Obsidian, mpv, VLC, Bitwarden CLI/GUI, GNOME Calculator. |
-| `development` | Node/npm, Bun, pnpm, Rust/Cargo, uv, common build tools, Playwright and compatible browsers, Docker daemon, Compose v2, Buildx, and user access. |
-| `ai-tools` additions | T3 Code, OpenCode v2 CLI/desktop, llama.cpp CLI, Hex, and Herdr. Hex hardware support is confirmed on the current workstation; preserve required runtime integration on NixOS. |
-| `appearance` | Ioskeley monospace, JetBrains fallback, Inter sans-serif, Source Serif Pro serif, Apple Color Emoji, and additional glyph coverage. One canonical Victus Graphite palette with application adapters. |
-| `connectivity` | Tailscale enabled with appropriate networking integration; authenticate separately. |
-| ArtCraft | Review community packaging and upstream launcher. Launcher-installed children remain mutable user applications unless individually packaged through Nix. |
+| `development` | Node/npm, Bun, pnpm, Rust/Cargo/rustfmt/clippy/rust-analyzer, uv, Python, C/C++ build tools, Git/curl/jq/archive utilities, Playwright with matching browsers, Docker daemon, Compose v2, Buildx, lazydocker, and user access. |
+| `ai-tools` | Nixpkgs Codex and Claude Code as explicitly requested; T3 Code, official OpenCode v2 CLI/desktop, Hex, Herdr, and llama.cpp's CLI command without enabling a model server. |
+| `appearance` | Ioskeley and JetBrains Nerd Fonts, Inter, Source Serif Pro, Apple Color Emoji, fallback language/glyph fonts, requested fontconfig defaults, Victus Graphite palette and adapters. |
+| `connectivity` | Tailscale enabled; owner authenticates separately. |
+| `artcraft` | Official launcher plus community Nix-managed WordCraft and PdfCraft. AppImage compatibility for additional launcher-managed apps. |
+| `server` | Jellyfin, maintained Immich with PostgreSQL/Redis/machine learning, web firewall ports, and laptop lid/idle settings that keep services running. |
 
-Prefer maintained official upstream flakes with installable packages and published
-releases. Use current Nixpkgs, reviewed community flakes, or local packaging as
-fallbacks. Codex and Claude Code are explicit Nixpkgs choices.
+## Package sources
 
-The baseline should support ordinary one-off user installs through Bun/npm and
-other tools using writable directories and nix-ld. This compatibility layer is
-separate from how the declared shared applications are installed. Native
-extensions and application-specific dependencies may still require development
-shells or packaging.
+Maintained official flakes are preferred: Dux, Zed, Hex, Herdr, OpenCode v2, and the
+ArtCraft launcher. Release tags are used where appropriate. Their required
+upstream dependency pins are retained instead of forcing them onto the older
+system package set. Hex's upstream flake has a transitive Home Manager input;
+this repository does not import or configure Home Manager.
 
-## Appearance boundaries
+The base OS and Nixpkgs Codex/Claude Code use stable NixOS. A separately pinned
+unstable package set supplies current general applications and development tools.
+Immich uses that maintained package and PostgreSQL 17 because the older stable
+Immich package is marked insecure. The stable NixOS Immich module provides service
+and database setup. Insecure packages are not allowed as a workaround.
 
-- Dux gets the Victus Graphite theme made available. Do not port current shell
-  settings, plugins, layouts, monitor assignments, or unrelated preferences.
-- Zed gets the requested font settings and the Victus Graphite theme; preserve
-  unrelated settings and allow application-managed settings to remain writable.
-- Obsidian's theme and selected font settings are vault-local; integrate those
-  without replacing the vault configuration wholesale.
-- Generate theme adapters for Dux, Zed, Obsidian, T3 Code, and foot from common
-  palette data, retaining deliberate differences between applications.
-- Use a pinned Ioskeley release ZIP where possible rather than vendoring TTFs.
-  Do not migrate the existing fontconfig rules; express the requested defaults.
+Helium and the requested Ioskeley/Apple fonts use official releases with verified
+hashes. ArtCraft WordCraft/PdfCraft use the reviewed Hy4ri community package flake.
+The Tailscale upstream developer flake warns about brittle vendor hashes, so its current Nixpkgs package is used with the native service module. Bun's upstream flake supplies only a development shell.
 
-## Host onboarding
+Other Craft apps installed through the launcher live in the user's writable data;
+those installations and updates are not governed by Nix.
 
-Before registering or deploying the server, collect its installer-generated
-configuration and hardware files, installed release, username, hostname, and
-storage/boot details. Preserve initial `system.stateVersion` and disk identifiers.
-Later add server services, backups, lid behavior, and workstation-specific settings
-as supplied by the owner. Hardware information is required for host deployment,
-not for progressing the shared modules.
+## User configuration and appearance
+
+The primary username comes from host onboarding. Hjem manages selected native
+files. App settings that need to stay writable are handled by a small merge tool
+that changes only the requested fonts and theme keys.
+
+- Dux receives only the available Victus Graphite theme file. No current settings,
+  plugins, layouts, monitor assignments, or wallpapers are copied. Select the
+  custom theme through Dux when setting up the session.
+- Zed receives the current font families and UI/buffer sizes, its Markdown font,
+  and Victus Graphite. Unrelated settings are preserved. JSONC comments are not
+  retained when a settings merge rewrites the JSON document.
+- Obsidian gets its theme and monospace preference in registered vaults, without
+  replacing the rest of the vault configuration. On a new installation, create or
+  register the vault first. `apply-shared-appearance` can be run manually; a user
+  service applies it at login and watches the vault registry for additions.
+- T3 Code receives `~/.t3/userdata/themes/victus-graphite.json`. Select the theme in
+  Appearance, or run `t3 theme set victus-graphite` when its local environment is
+  running. Publishing the file does not start T3 Code or modify its account state.
+- foot receives the existing font size, terminal behavior, and Victus colors.
+- Shared colors live in `themes/victus-graphite/palette.json`; application-specific
+  `.in` templates retain intentional differences while referencing that palette.
+- Font defaults are Ioskeley monospace with JetBrains fallback, Inter sans-serif,
+  Source Serif Pro serif, and Apple Color Emoji. The old fontconfig is not copied.
+
+## One-off tools and project environments
+
+Writable npm/Bun/pnpm paths and nix-ld support conventional user-level installs.
+Native extensions and application-specific dependencies can still need a project
+shell or package. The declared applications above are Nix-managed; no installer
+scripts or global package downloads run during login or activation.
+
+The `playwright` command uses the packaged driver and matching browsers without
+forcing a global browser path on unrelated projects. Project-specific Playwright
+versions should use matching browsers in a project development shell.
+`nix develop .#playwright` provides the repository's matching Node/driver/browser environment. The shared
+Playwright version is recorded at `/etc/nix-config/playwright-version`.
+
+## Remaining machine-specific work
+
+See [installation and first service setup](install.md). We still need actual
+hardware/storage/boot settings before host deployment. Owner authentication,
+Jellyfin libraries, photo imports, external storage mounts, hardware acceleration,
+and a backup destination are performed after that. Nothing has been activated on
+the laptop by changing this repository.

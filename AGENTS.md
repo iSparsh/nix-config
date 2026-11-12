@@ -1,8 +1,9 @@
 # Repository rules
 
 - Use the dendritic pattern: each `*.mod.nix` file is a flake-parts module organized around one feature. Read `docs/architecture.md` before changing composition.
+- Read `docs/shared-setup.md` before changing applications, services, or user preferences; it records the approved scope and settings that must stay local.
 - The flake discovers `*.mod.nix` files automatically. Do not manually import shared modules, including named shared-module imports in hosts. Contribute to `flake.modules.nixos.<profile>`; select profiles through `fleet.hosts.<name>.profiles`. The central host constructor handles composition.
-- Local supporting imports (such as generated hardware configuration) are allowed. Supporting files use ordinary `.nix` names, not `.mod.nix`. Register upstream integrations once in the shared base.
+- Local supporting imports (such as generated hardware configuration) are allowed. Supporting files use ordinary `.nix` names, not `.mod.nix`. Register upstream integration modules once in the profile that owns the integration.
 - Use Hjem, not Home Manager. Discovering a feature must not activate it on every host. Add it to the intended profile; reserve `base` for settings wanted everywhere.
 - Prefer maintained official upstream flakes that provide installable packages, following published releases. Fall back to current Nixpkgs packages, then reviewed community flakes, then local packaging of official releases. Pin sources and test updates; verify package outputs and dependency compatibility before adoption.
 - Never enumerate or broadly search `/nix/store` or equivalent locations. Prefer `nix flake archive --json`, then inspect specific returned input paths in separate commands.

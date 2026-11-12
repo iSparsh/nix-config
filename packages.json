@@ -1,0 +1,28 @@
+{
+  "helium": {
+    "version": "0.21.2.1",
+    "repo": "imputnet/helium-linux",
+    "assets": {
+      "x86_64-linux": {
+        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.2.1/helium-0.21.2.1-x86_64.AppImage",
+        "hash": "sha256-IdP+SyvmN+uT/eogjWsG1/6feO6MF9gP/57SM3AsBmo="
+      },
+      "aarch64-linux": {
+        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.2.1/helium-0.21.2.1-arm64.AppImage",
+        "hash": "sha256-Ih+xUYoEXODxz049NFnnrYDl5WZsGy6a8fhuH068YCg="
+      }
+    }
+  },
+  "ioskeley": {
+    "version": "2.2.0",
+    "repo": "ahatem/IoskeleyMono",
+    "url": "https://github.com/ahatem/IoskeleyMono/releases/download/v2.2.0/IoskeleyMono-Term-NerdFont.zip",
+    "hash": "sha256-JcYBsaVh9zy7A2aTEUiGFFGpckY3GNJedr+Gn9PVR1Q="
+  },
+  "apple-emoji": {
+    "version": "20260722",
+    "repo": "samuelngs/apple-emoji-ttf",
+    "url": "https://github.com/samuelngs/apple-emoji-ttf/releases/download/macos-26-20260722-484daf4e/AppleColorEmoji-Linux.ttf",
+    "hash": "sha256-43x69iZaxKCvbVe8ZehhCad22ZZug0MzRVf2PaSCUW8="
+  }
+}

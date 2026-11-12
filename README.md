@@ -1,17 +1,26 @@
 # nix-config
 
-Personal NixOS configurations for a home server and a future workstation, using the dendritic pattern, flake-parts, and Hjem.
+Personal NixOS configurations for a home server and workstation, using the
+dendritic pattern, flake-parts, and Hjem.
 
-Features live in automatically discovered `*.mod.nix` files. Each file contributes to named profiles or other flake outputs. Hosts select profiles; one central constructor composes shared modules.
+Automatically discovered `*.mod.nix` files contribute to named profiles. Hosts
+receive the shared desktop, application, development, AI, shell, font, and theme
+profiles by default; the server also receives Jellyfin and Immich.
+
+- [Shared software, sources, and configuration boundaries](docs/shared-setup.md)
+- [Install the laptop and onboard its hardware](docs/install.md)
+- [Architecture and adding hosts](docs/architecture.md)
+- [Agent instructions](AGENTS.md)
+- [Initial upstream research](docs/research.md)
 
 ```sh
 nix fmt
 nix flake check
+bash scripts/check-profiles.sh
 ```
 
-- [Architecture and adding a host](docs/architecture.md)
-- [Approved shared setup and implementation status](docs/shared-setup.md)
-- [Initial upstream research](docs/research.md)
-- [Agent instructions](AGENTS.md)
-
-The flake provides shared Hjem and nix-ld integration, a Codex/Claude Code profile, formatting, and validation. No installed hosts are registered yet. Next, continue the approved shared setup and add the server's actual installation facts. Preserve the NixOS installer's generated `configuration.nix` and `hardware-configuration.nix` for that step.
+Dependencies are pinned in `flake.lock`; custom release assets are pinned in
+`packages.json`. Scheduled automation proposes checked update pull requests.
+No installed machines are registered yet. The complete server and workstation
+profiles are evaluated with synthetic fixtures, and actual hardware files are
+required before deployment. See the installation guide for the first-boot steps.

@@ -1,0 +1,69 @@
+/* Victus Graphite: neutral One Dark Pro surfaces and syntax. */
+.theme-dark {
+  --background-primary: @background@;
+  --background-primary-alt: @surfaceRaised@;
+  --background-secondary: @chrome@;
+  --background-secondary-alt: @color_202020@;
+  --background-modifier-border: @border@;
+  --background-modifier-border-hover: @color_555555@;
+  --background-modifier-border-focus: @color_626262@;
+  --background-modifier-hover: @surfaceHover@;
+  --background-modifier-active-hover: @color_343434@;
+  --background-modifier-form-field: @surfaceRaised@;
+  --interactive-normal: @color_303030@;
+  --interactive-hover: @border@;
+  --interactive-accent: @blue@;
+  --interactive-accent-hover: @color_7fc2f4@;
+  --text-on-accent: @chrome@;
+  --text-normal: @color_c8cdd5@;
+  --text-muted: @color_a1a6b0@;
+  --text-faint: @color_858b96@;
+  --text-accent: @blue@;
+  --text-accent-hover: @color_82c5f7@;
+  --text-selection: @color_404040@;
+  --text-highlight-bg: @color_6d5937@;
+  --bold-color: @text@;
+  --italic-color: @color_c8cdd5@;
+  --h1-color: @text@; --h2-color: @text@;
+  --h3-color: @color_d7dae0@; --h4-color: @color_d7dae0@;
+  --h5-color: @color_c8cdd5@; --h6-color: @foreground@;
+  --link-color: @blue@; --link-color-hover: @color_82c5f7@;
+  --link-external-color: @blue@; --link-external-color-hover: @color_82c5f7@;
+  --tag-color: @green@; --tag-background: @color_293429@;
+  --code-background: @chrome@; --code-normal: @color_d7dae0@;
+  --code-comment: @color_8c929d@; --code-function: @blue@;
+  --code-keyword: @purple@; --code-string: @green@;
+  --code-value: @orange@; --code-property: @red@;
+  --code-operator: @foreground@; --code-punctuation: @foreground@;
+  --code-tag: @red@; --code-important: @yellow@;
+  --blockquote-border-color: @color_626262@;
+  --blockquote-color: @foreground@;
+  --table-border-color: @border@;
+  --table-header-background: @surfaceHover@;
+  --table-row-background-hover: @surfaceHover@;
+  --tab-container-background: @chrome@;
+  --tab-background-active: @background@;
+  --tab-outline-color: @border@;
+  --nav-item-background-active: @color_303030@;
+  --nav-item-background-hover: @surfaceHover@;
+  --color-red: @red@; --color-orange: @orange@;
+  --color-yellow: @yellow@; --color-green: @green@;
+  --color-cyan: @cyan@; --color-blue: @blue@;
+  --color-purple: @purple@; --color-pink: @red@;
+}
+/* Separate inline code from prose, and fenced code from the document. */
+.theme-dark .markdown-rendered :not(pre) > code,
+.theme-dark .cm-s-obsidian span.cm-inline-code {
+  background: @color_303030@;
+  color: @yellow@;
+  border-radius: 4px;
+}
+.theme-dark .markdown-rendered :not(pre) > code { padding: 0.12em 0.3em; }
+.theme-dark .markdown-rendered pre {
+  background: @chrome@;
+  border: 1px solid @border@;
+  border-radius: 6px;
+}
+.theme-dark .markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock {
+  background: @chrome@;
+}

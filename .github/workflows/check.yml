@@ -11,9 +11,11 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v31
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.5
       - name: Check formatting
         run: nix fmt -- --ci
       - name: Check flake and shared integration
         run: nix flake check
+      - name: Evaluate full workstation and server profiles
+        run: bash scripts/check-profiles.sh
