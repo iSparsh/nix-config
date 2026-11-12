@@ -22,12 +22,12 @@ system's desktop.
 6. Provide `/etc/nixos/configuration.nix` and
    `/etc/nixos/hardware-configuration.nix`, plus the installed NixOS version,
    hostname, and username. Preserve `system.stateVersion`, bootloader settings,
-   and filesystem identifiers. No application installation is needed first.
+   and filesystem identifiers. The shared base replaces the installer bootloader
+   choice with Limine. No application installation is needed first.
 
-We will then add a real host to `hosts/`, preserve its hardware and user settings,
-and select the shared profiles plus `server`. Until then there is intentionally
-no deployable laptop output in this repository. Synthetic validation hosts live
-only in an isolated temporary test flake.
+The installed laptop is now registered as `asus-nixos`. Follow its
+[deployment guide](../hosts/asus-nixos/README.md) to adopt the repository and install
+the shared Limine bootloader. Synthetic validation hosts remain isolated test fixtures.
 
 The shared setup includes Nix, Git, gh, Hjem, all requested applications, fonts,
 and service integration. Authentication is performed by the owner after deployment:

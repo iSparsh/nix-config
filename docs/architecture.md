@@ -59,13 +59,14 @@ An illustrative `hosts/home-server/home-server.mod.nix`:
       imports = [ ./hardware-configuration.nix ];
 
       # Copy installation-specific settings from the installed machine,
-      # including its original system.stateVersion and bootloader settings.
+      # including its original system.stateVersion and EFI settings.
+      # The shared base selects Limine instead of the installer bootloader.
     };
   };
 }
 ```
 
-This is a structural example, not an installable configuration. The repository intentionally has no real host outputs until actual installation facts are supplied. Preserve the installer's generated `configuration.nix` and `hardware-configuration.nix`.
+This is a structural example. The real `asus-nixos` output uses the owner-supplied installation facts. Preserve the installer's generated `configuration.nix` and `hardware-configuration.nix`.
 
 The central constructor adds `base`, the host-local module, hostname, and selected profiles. Host files do not manually import shared modules by path or attribute reference. Host-local hardware/supporting imports are allowed. Hjem's external module is registered once in `base`; home configuration can be contributed to the same profiles through `hjem.users` without Home Manager.
 

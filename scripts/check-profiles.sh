@@ -15,6 +15,10 @@ for host in check-workstation check-server; do
 
 nix --extra-experimental-features "nix-command flakes" eval --no-update-lock-file --json "path:$fixture_dir#nixosConfigurations" --apply '
   hosts:
+  assert hosts.check-server.config.boot.loader.limine.enable;
+  assert hosts.check-workstation.config.boot.loader.limine.enable;
+  assert !hosts.check-server.config.boot.loader.systemd-boot.enable;
+  assert !hosts.check-workstation.config.boot.loader.grub.enable;
   assert hosts.check-server.config.services.jellyfin.enable;
   assert hosts.check-server.config.services.immich.enable;
   assert hosts.check-server.config.services.postgresql.enable;

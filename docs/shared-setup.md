@@ -1,13 +1,13 @@
 # Shared setup
 
 The shared profiles below are implemented and selected by default for each host.
-A server additionally selects `server`. No real host is registered until its
-installer-generated files are supplied. Package revisions live in `flake.lock`;
+A server additionally selects `server`. The installed server is `asus-nixos`,
+using the owner-supplied hardware configuration and user `sparsh`. Package revisions live in `flake.lock`;
 custom binary/font release URLs and hashes live in `packages.json`.
 
 | Profile | Implemented contents |
 |---|---|
-| `base` | Hjem, modern Nix CLI settings, nix-ld with the NixOS defaults plus libffi, ICU, SQLite, ncurses, readline, and GLib. Named unfree-package allowances. |
+| `base` | Limine bootloader, Hjem, modern Nix CLI settings, nix-ld with the NixOS defaults plus libffi, ICU, SQLite, ncurses, readline, and GLib. Named unfree-package allowances. |
 | `shell` | zsh completion/history/keybindings, autosuggestions, highlighting, fzf, Starship, zoxide, portable aliases, and OpenConnect for the existing VPN alias. Recreated declaratively without copying `.zshrc`. |
 | `desktop` | Hyprland/UWSM, official upstream Dux Shell/Search/Files/Greeter, portals, PipeWire audio, clipboard tools, NetworkManager, GeoClue, and session integration. |
 | `apps` | Helium, Chromium, gh, Zed, Neovim, foot, Obsidian, mpv, VLC, Bitwarden CLI/GUI, GNOME Calculator. |
@@ -79,8 +79,9 @@ Playwright version is recorded at `/etc/nix-config/playwright-version`.
 
 ## Remaining machine-specific work
 
-See [installation and first service setup](install.md). We still need actual
-hardware/storage/boot settings before host deployment. Owner authentication,
+See [installation and first service setup](install.md). The server's hardware/boot settings are registered; follow its
+[deployment guide](../hosts/asus-nixos/README.md). Workstation hardware is supplied
+when that machine migrates. Owner authentication,
 Jellyfin libraries, photo imports, external storage mounts, hardware acceleration,
 and a backup destination are performed after that. Nothing has been activated on
 the laptop by changing this repository.

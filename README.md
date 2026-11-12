@@ -21,6 +21,7 @@ bash scripts/check-profiles.sh
 
 Dependencies are pinned in `flake.lock`; custom release assets are pinned in
 `packages.json`. Scheduled automation proposes checked update pull requests.
-No installed machines are registered yet. The complete server and workstation
-profiles are evaluated with synthetic fixtures, and actual hardware files are
-required before deployment. See the installation guide for the first-boot steps.
+The installed server is [asus-nixos](hosts/asus-nixos/README.md), with its supplied
+hardware configuration and shared Limine bootloader. The workstation is added when
+it migrates to NixOS. Complete shared server/workstation profiles also have synthetic
+evaluation fixtures. See the host guide for building and the first deployment.
