@@ -1,15 +1,15 @@
 {
   "helium": {
-    "version": "0.21.2.1",
+    "version": "0.21.3.1",
     "repo": "imputnet/helium-linux",
     "assets": {
       "x86_64-linux": {
-        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.2.1/helium-0.21.2.1-x86_64.AppImage",
-        "hash": "sha256-IdP+SyvmN+uT/eogjWsG1/6feO6MF9gP/57SM3AsBmo="
+        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.3.1/helium-0.21.3.1-x86_64.AppImage",
+        "hash": "sha256-qFQFlsk6RGMWBWAvO8Tu2lv/g+saOosC5NBKTIRz4p0="
       },
       "aarch64-linux": {
-        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.2.1/helium-0.21.2.1-arm64.AppImage",
-        "hash": "sha256-Ih+xUYoEXODxz049NFnnrYDl5WZsGy6a8fhuH068YCg="
+        "url": "https://github.com/imputnet/helium-linux/releases/download/0.21.3.1/helium-0.21.3.1-arm64.AppImage",
+        "hash": "sha256-9/OuA/mpxV8bLUIGiKhjkf19NDLx5iWIoubdeAwVRAQ="
       }
     }
   },
@@ -20,7 +20,7 @@
     "hash": "sha256-JcYBsaVh9zy7A2aTEUiGFFGpckY3GNJedr+Gn9PVR1Q="
   },
   "apple-emoji": {
-    "version": "20260722",
+    "version": "macos-26-20260722-484daf4e",
     "repo": "samuelngs/apple-emoji-ttf",
     "url": "https://github.com/samuelngs/apple-emoji-ttf/releases/download/macos-26-20260722-484daf4e/AppleColorEmoji-Linux.ttf",
     "hash": "sha256-43x69iZaxKCvbVe8ZehhCad22ZZug0MzRVf2PaSCUW8="

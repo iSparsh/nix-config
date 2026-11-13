@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1794494975,
-        "narHash": "sha256-qmOWgs7Sw4lmYWIxHT5WMhnJ30bgkLqeABzJV3WSjm0=",
+        "lastModified": 1794573706,
+        "narHash": "sha256-QKwixavNOwHLmQAcGd+L6ZUvg8+ym6wzWcNta3NDfvQ=",
         "owner": "Hy4ri",
         "repo": "artcraft-flake",
-        "rev": "f4f092d8b2eb7ffe6902b3b827cbff94c0d0da30",
+        "rev": "132927430b4e365a33fff1d16c2ffb71722b7f61",
         "type": "github"
       },
       "original": {
@@ -318,11 +318,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794190356,
-        "narHash": "sha256-tttNqwFIXsClznNv3uEltACsfBm8xIDo9bPl+BHqYZc=",
+        "lastModified": 1794572558,
+        "narHash": "sha256-N6aGkpxbDeisIUygDapIVX2aXZuGEK4kRmUPMhtu1zc=",
         "owner": "feel-co",
         "repo": "hjem",
-        "rev": "28cec3017cc94842f919f8f294c8b7136216b79b",
+        "rev": "5469a3ae3cd5cc182ddc4201a21a8de44b2c26f2",
         "type": "github"
       },
       "original": {
@@ -580,16 +580,16 @@
         "nixpkgs": "nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1794297162,
-        "narHash": "sha256-JPCR867ZoMbYNrCvAa3OnilsxVcktD3mHCGpR6o/nlw=",
+        "lastModified": 1794555187,
+        "narHash": "sha256-7vw0TcaFsMN+XbZoU1gwHE1r8ppPPK0CTQqPbVQozT8=",
         "owner": "anomalyco",
         "repo": "opencode",
-        "rev": "fedc6f208aa2bd54c1019227214568083f6380ad",
+        "rev": "a6b15d33daf6ab7d35569f6d711fdb630b9f04e7",
         "type": "github"
       },
       "original": {
         "owner": "anomalyco",
-        "ref": "v2.2.7",
+        "ref": "v2.3.0",
         "repo": "opencode",
         "type": "github"
       }
